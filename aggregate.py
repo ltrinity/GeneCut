@@ -8,6 +8,7 @@ Gene Analysis Script
 import pandas as pd
 import numpy as np
 import os
+import pickle
 fileName = os.listdir("input")[0]
 #read in the data file
 df = pd.read_csv("input\\" + fileName)
@@ -38,3 +39,5 @@ for key in changesDict:
         changesDict[key]["maxFold"+condition] = 2**max(values)
         if not np.isnan(np.mean(values)):
             changesDict[key]["mean"+condition] = np.mean(values)   
+#output the result from the file
+pickle.dump( changesDict, open( "temp\\changesDict.p", "wb" ) )
