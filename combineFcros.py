@@ -38,3 +38,4 @@ upDown = [True, True, False, False]
 keys = ['EC','Nn','EC','Nn']
 for i in range(4):
     minMaxFcros(locations[i],upDown[i],keys[i])
+pickle.dump( changesDict, open( "temp\\changesDict.p", "wb" ) )
