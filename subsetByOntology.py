@@ -35,8 +35,8 @@ transcriptionGO = ["0003700", "0000130", "0001071", "0001130", "0001131", "00011
 #replace explicit assignment with API call
 #epigeneticGO = ["0040029"]
 epigeneticGO = generateSubsetOntology(epigeneticRequestURL)
-adhesionGO = ["0007155","0098602"]
 metabolismGO = ["0008152","0044236","0044710"]
+adhesionGO = ["0007155","0098602"]
 extracellularGO = ["0031012"]
-ontologySubsets = [signalGO, transcriptionGO, epigeneticGO, adhesionGO, metabolismGO, extracellularGO]
+ontologySubsets = [signalGO, transcriptionGO, epigeneticGO, metabolismGO, adhesionGO, extracellularGO]
 pickle.dump( ontologySubsets, open( "temp\\ontology.p", "wb" ) )

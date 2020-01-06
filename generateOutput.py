@@ -4,11 +4,17 @@ Created on Sun Jan  5 23:04:03 2020
 This script generates the output csv files by subset or master as well as handles plotting of the data
 @author: luket
 """
+import pickle
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+changesDict = pickle.load( open( "temp\\changesDict.p", "rb" ) )
+ontologySubsets = pickle.load( open( "temp\\ontology.p", "rb" ) )
 #this method takes in three parameters and outputs process csv and figures
 #this first parameter is a boolean indicating if we are subsetting
 #the second parameter is a string the name of the output file
 #the third parameter is a list of all the gene ontology terms to include
-def outputMasterOrSubset(includingByCategory, outFileName, geneOntologiesIncluded, APICall):
+def outputData(includingByCategory, outFileName, geneOntologiesIncluded, APICall):
     #initialize the figure and draw the axis
     fig, (ax1,ax2) = plt.subplots(1,2,figsize=(15,5))
     ax1.axhline(y=0, xmin=-15, xmax=15,color='black',linestyle='-',zorder = 1)
@@ -17,6 +23,7 @@ def outputMasterOrSubset(includingByCategory, outFileName, geneOntologiesInclude
     for r in np.linspace(0,15,15):
         circ = plt.Circle((0, 0), radius=r, color='g',fill=False,zorder=1)
         ax1.add_artist(circ)
+    #set the labels and tick param size
     ax1.set_xlabel('EC - iPS',fontsize=25)
     ax1.set_ylabel('Nn - iPS',fontsize=25)
     ax1.tick_params(labelsize=22)
@@ -36,27 +43,26 @@ def outputMasterOrSubset(includingByCategory, outFileName, geneOntologiesInclude
                                      'min fcross significance (Nn)', 
                                      'max fcross significance (Nn)'])
     #for each key from the input file
-    for key in meanEC:
+    for key in changesDict:
+        print(changesDict[key])
         #python fold changes
-        ECMaxfloatFoldChange = (ECmaxfoldDict[key])
-        ECMinfloatFoldChange = (ECminfoldDict[key])
-        NnMaxfloatFoldChange = (NnmaxFoldDict[key])
-        NnMinfloatFoldChange = (NnminFoldDict[key])
+        ECMaxfloatFoldChange = (changesDict[key]['maxFoldEC-iPs'])
+        ECMinfloatFoldChange = (changesDict[key]['minFoldEC-iPs'])
+        NnMaxfloatFoldChange = (changesDict[key]['maxFoldNn-iPs'])
+        NnMinfloatFoldChange = (changesDict[key]['minFoldNn-iPs'])
         #initialize max min fcros values
-        ECMaxfcros = float((ECMaxDict[key.replace(" ","")])[0])
-        ECMinfcros = float((ECMinDict[key.replace(" ","")])[0])
-        NnMaxfcros = float((NnMaxDict[key.replace(" ","")])[0])
-        NnMinfcros = float((NnMinDict[key.replace(" ","")])[0])
-        #baded on our criteria (see readme)
+        ECMaxfcros = (changesDict[key]['max fcross significance (EC)'][0])
+        ECMinfcros = (changesDict[key]['min fcross significance (EC)'][0])
+        NnMaxfcros = (changesDict[key]['max fcross significance (Nn)'][0])
+        NnMinfcros = (changesDict[key]['min fcross significance (Nn)'][0])
+        #based on our criteria (see readme)
         if ECMaxfcros > 0.95 or ECMinfcros < 0.05 or NnMaxfcros > 0.95 or NnMinfcros < 0.05 or \
          float(NnMaxfloatFoldChange) >= 1.1479 or float(NnMinfloatFoldChange) <= 0.8521 \
          or float(ECMaxfloatFoldChange) >= 1.1479 or float(ECMinfloatFoldChange) <= 0.8521: 
-                 #get the row of this gene
-                rowIndex = (df.index[df['Gene Symbol'] == key].tolist())
                 #store the ontology annotations
-                bioOntology = (df.iloc[rowIndex[0]]['Gene Ontology Biological Process'])
-                cellularOntology = (df.iloc[rowIndex[0]]['Gene Ontology Cellular Component'])
-                molecOntology = (df.iloc[rowIndex[0]]['Gene Ontology Molecular Function'])
+                bioOntology = (changesDict[key]['biologicalProcessGO'])
+                cellularOntology = (changesDict[key]['cellularComponentGO'])
+                molecOntology = (changesDict[key]['molecularFunctionGO'])
                 #parse the annotations for consistency
                 bioOntArray = str(bioOntology).replace('///','//').split(' // ')
                 molecOntArray = str(molecOntology).replace('///','//').split(' // ')
@@ -94,25 +100,27 @@ def outputMasterOrSubset(includingByCategory, outFileName, geneOntologiesInclude
                 #if we are including the gene
                 if include:
                     #store the symbol, scatter the point
-                    gene = df.iloc[rowIndex[0]]['Gene Symbol']
-                    ax1.scatter(meanEC[gene],meanNn[gene],zorder=2)
+                    gene = key
+                    meanEC = changesDict[key]['meanEC-iPs']
+                    meanNn = changesDict[key]['meanNn-iPs']
+                    ax1.scatter(meanEC,meanNn,zorder=2)
                     #initialize and determine quadrant
                     quadrant = -1
-                    if meanEC[gene] > 0 and meanNn[gene] > 0:
+                    if meanEC > 0 and meanNn > 0:
                         quadrant = 1
-                    if meanEC[gene] < 0 and meanNn[gene] > 0:
+                    if meanEC < 0 and meanNn > 0:
                         quadrant = 2
-                    if meanEC[gene] < 0 and meanNn[gene] < 0:
+                    if meanEC < 0 and meanNn < 0:
                         quadrant = 3
-                    if meanEC[gene] > 0 and meanNn[gene] < 0:
+                    if meanEC > 0 and meanNn < 0:
                         quadrant = 4
                     #form output row
-                    rowDF = pd.DataFrame({'Gene Symbol':[gene],
+                    rowDF = pd.DataFrame({'Gene Symbol':[key],
                                           'GO Biological Process':[bioOntology],
                                           'GO Cellular Component':[cellularOntology],
                                           'GO Molecular Function':[molecOntology],
                                           'Quadrant':[quadrant], 
-                                          'mean(EC-iPS)':[meanEC[gene]],
+                                          'mean(EC-iPS)':[meanEC],
                                           'fcross FC (EC)':['[' + str(np.round(ECMinfloatFoldChange,3)) + ', '
                                                      + str(np.round(ECMaxfloatFoldChange,3)) + ']'],
                                           'min fcross significance (EC)':[ECMinfcros],
@@ -150,10 +158,13 @@ def outputMasterOrSubset(includingByCategory, outFileName, geneOntologiesInclude
     else:
         outputDF.to_csv(outFileName,index=False)
         print(outFileName  + " - " + str(outputDF.count()['Gene Symbol']))
-#outputMasterOrSubset(True,outNames[0], signalGO, False)
-#outputMasterOrSubset(True,outNames[1], transcriptionGO, False)
-#outputMasterOrSubset(True,outNames[2], generateSubsetOntologies(urls[2]), True)
-outputMasterOrSubset(True,outNames[3], metabolismGO , False)
-outputMasterOrSubset(True,outNames[4], adhesionGO, False)
-#outputMasterOrSubset(True,outNames[5], extracellularGO, False)
-#outputMasterOrSubset(False,'outputdata\\ExpressionAnalysisMaster.csv', {}, False)
+outNames = ['outputdata\\SignalingSubset.csv','outputdata\\TranscriptionSubset.csv','outputdata\\EpigeneticSubset.csv','outputdata\\MetabolicSubset.csv',
+               'outputdata\\CellAdhesionSubset.csv' ,'outputdata\\ExtracelullarMatrixProteinSubset.csv']
+for i in range(7):
+    if i < 6:
+        if i == 2:
+            outputData(True,outNames[i],ontologySubsets[i], True)
+        else:
+            outputData(True,outNames[i],ontologySubsets[i], False)
+    else:
+        outputData(False, 'outputdata\\ExpressionAnalysisMaster.csv', {}, False)

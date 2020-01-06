@@ -17,6 +17,10 @@ identifier = df.columns[6]
 measureStem = df.columns[2]
 measureEC = df.columns[3]
 measureNn = df.columns[4]
+biologicalProcessGO = df.columns[8]
+cellularComponentGO = df.columns[9]
+molecularFunctionGO = df.columns[10]
+
 #initialize a dictionary to store both types of gene expression differences
 changesDict = {}
 #for each row in the dataframe
@@ -30,7 +34,8 @@ for index, row in df.iterrows():
     #if the gene code is not in the dictionary create the key/value pairs for EC and Nn
     else:
         changesDict[row[identifier]] = {"EC-iPs": [row[measureEC]-row[measureStem]],
-                   "Nn-iPs": [row[measureNn]-row[measureStem]]}
+                   "Nn-iPs": [row[measureNn]-row[measureStem]],"biologicalProcessGO": [row[biologicalProcessGO]],
+                   "cellularComponentGO": [row[cellularComponentGO]],"molecularFunctionGO": [row[molecularFunctionGO]]}
 #store the max and min fold changes and calculate the mean value of gene expression
 for key in changesDict:
     for condition in ["EC-iPs","Nn-iPs"]:
