@@ -1,20 +1,24 @@
 #F Cros Analysis Script
 #Author: Luke Trinity
 #Date: December 19, 2019
+#import fcros
 library(fcros)
 #this method runs fcros with parameters for how many significant genes to output,
-#which column to use for test data, and two strings for outpur filenames
+#which column to use for test data, and two strings for output filenames
 runFCros <- function(numberOfSignificantGenesToOutput, test, outFileName1, outFileName2){
+  #identify control
   cont <- c("iPSnorm");
-  #modularity in test column
+  #identify test from input param
   test <- c(test);
+  #default settings
   log2.opt <- 0;
   trim.opt <- 0.25;
   # perform fcros()
   af <- fcros(Hosna.copy, cont, test, log2.opt, trim.opt);
-  af$idnames
-  #output all the genes and fcros values based on input number
+  #output all the genes and fcros values 
+  #(top is from initial docs, expanded to output values for all genes in dataset)
   topUpDown <- fcrosTopN(af, numberOfSignificantGenesToOutput);
+  #thresholds
   alpha1 <- topUpDown$alpha[1];
   alpha2 <- topUpDown$alpha[2];
   id.down  <- matrix(0, 1);
@@ -26,7 +30,7 @@ runFCros <- function(numberOfSignificantGenesToOutput, test, outFileName1, outFi
   f.value <- af$f.value;
   idown <- 1;
   iup <- 1;
-  #modification here to save f cros value
+  #modification here to save fcros value
   for (i in 1:n) {
     if (f.value[i] <= alpha1) { id.down[idown] <- i; 
                                 idown <- idown + 1;
@@ -55,5 +59,5 @@ Hosna.copy <- read.csv("input/Hosna-copy.csv")
 rownames(Hosna.copy) <- make.names(Hosna.copy[,7],unique=TRUE)
 colnames(Hosna.copy) <- c("ID","HUVECnorm","iPSnorm","ECDiff","NnDiff","HFNnorm","symbol","gene","ontologybio","ontologycellular","ontologymicro","alignments")
 #run fcros based on specifications
-runFCros(49400, "NnDiff",'temp/upregulatedNnMaster.csv','downregulatedNnMaster.csv')
-runFCros(49400, "ECDiff",'temp/upregulatedECMaster.csv','downregulatedECMaster.csv')
+runFCros(49400, "NnDiff",'temp/upregulatedNnMaster.csv','temp/downregulatedNnMaster.csv')
+runFCros(49400, "ECDiff",'temp/upregulatedECMaster.csv','temp/downregulatedECMaster.csv')

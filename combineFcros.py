@@ -6,6 +6,10 @@ Script to add the output from an fcross script to an existing dictionary
 """
 import os
 import pickle
+import subprocess
+presentWorkingDir = os.getcwd()
+os.popen([presentWorkingDir,presentWorkingDir+'\\temp'])
+stdout, stderr = proc.communicate()
 changesDict = pickle.load( open( "temp\\changesDict.p", "rb" ) )
-cmd= "Rscript fcrosAnalalysis.R"
+cmd= "Rscript fcrosAnalysis.R ''"
 result = os.popen(cmd).read()
