@@ -12,26 +12,28 @@ def minMaxFcros(fCrosOutputFile, up, key):
     #grab the input file
     upDownRegData = pd.read_csv(fCrosOutputFile)
     #for each row in the input file
+    counter = 0
     for index, row in upDownRegData.iterrows():
         #parse the gene symbol
         symbol = (row[0].split(" ")[0])
         symbol = symbol.strip('"')
+        if symbol == '':
+            break
         #parse the fcros value
         fVal = float(row[0].split(" ")[1])
         #store max/min
         minKey = 'min fcross significance (' + key+ ')'
         maxKey = 'max fcross significance (' + key+ ')'
-        try:
-            if minKey in changesDict[symbol].keys():
-                if float(fVal) < changesDict[symbol][minKey][0]:
-                    changesDict[symbol][minKey] = ([fVal])
-                if float(fVal) > changesDict[symbol][maxKey][0]:
-                    changesDict[symbol][maxKey] = ([fVal])
-            else:
+        if minKey in changesDict[symbol].keys():
+            if float(fVal) < changesDict[symbol][minKey][0]:
                 changesDict[symbol][minKey] = ([fVal])
+            if float(fVal) > changesDict[symbol][maxKey][0]:
                 changesDict[symbol][maxKey] = ([fVal])
-        except KeyError:
-            pass
+        else:
+            counter+=1
+            changesDict[symbol][minKey] = ([fVal])
+            changesDict[symbol][maxKey] = ([fVal])
+    print(counter)
 locations = ["temp\\upregulatedECMaster.csv","temp\\upregulatedNnMaster.csv",
              "temp\\downregulatedECMaster.csv","temp\\downregulatedNnMaster.csv"]
 upDown = [True, True, False, False]

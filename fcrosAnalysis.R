@@ -52,12 +52,12 @@ runFCros <- function(numberOfSignificantGenesToOutput, test, outFileName1, outFi
   write.table(upReg,file=outFileName1,row.names = FALSE)
   write.table(downReg,file=outFileName2, row.names = FALSE)
 }
-#may need to set working directory
+#may need to set working directory **IMPORTANT**
 #setwd('C:/Users/luket/Desktop/GeneCut')
 #read csv, equivalent to file -> import dataset
 Hosna.copy <- read.csv("input/Hosna-copy.csv")
 rownames(Hosna.copy) <- make.names(Hosna.copy[,7],unique=TRUE)
 colnames(Hosna.copy) <- c("ID","HUVECnorm","iPSnorm","ECDiff","NnDiff","HFNnorm","symbol","gene","ontologybio","ontologycellular","ontologymicro","alignments")
 #run fcros based on specifications
-runFCros(49400, "NnDiff",'temp/upregulatedNnMaster.csv','temp/downregulatedNnMaster.csv')
-runFCros(49400, "ECDiff",'temp/upregulatedECMaster.csv','temp/downregulatedECMaster.csv')
+runFCros(48817, "NnDiff",'temp/upregulatedNnMaster.csv','temp/downregulatedNnMaster.csv')
+runFCros(48817, "ECDiff",'temp/upregulatedECMaster.csv','temp/downregulatedECMaster.csv')

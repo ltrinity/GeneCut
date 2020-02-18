@@ -11,9 +11,10 @@ Contact the author with any questions: ltrinity@uvm.edu
 3. Run the aggregate.py script -> Check the temp folder for the file ChangesDict.p
 
 4. Run the combineFcros.py script to incorporate the data from the R output into the ChangesDict.p dataframe
--> Check the temp folder for the file ontology.p
 
-5. 
+
+5. Run the subsetByOntology.py script to generate the ontologies by which to subset genes
+-> Check the temp folder for the file ontology.p
 
 Filtering Requirements:
 Fcros significance level < 0.05 or > 0.95 or

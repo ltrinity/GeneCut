@@ -20,29 +20,35 @@ measureNn = df.columns[4]
 biologicalProcessGO = df.columns[8]
 cellularComponentGO = df.columns[9]
 molecularFunctionGO = df.columns[10]
+alignment = df.columns[11]
 
 #initialize a dictionary to store both types of gene expression differences
 changesDict = {}
 #for each row in the dataframe
 for index, row in df.iterrows():
+    myID = str(row[identifier]).replace(" ","")
     #if the gene code is in the dictionary
-    if(row[identifier] in changesDict.keys()):
+    if(myID in changesDict.keys()):
         #append the difference of endothelial cell expression as a value
-        changesDict[row[identifier]]["EC-iPs"].append(row[measureEC]-row[measureStem])
+        changesDict[myID]["EC-iPs"].append(row[measureEC]-row[measureStem])
         #append the difference of neuronal cell expression as a value
-        changesDict[row[identifier]]["Nn-iPs"].append(row[measureNn]-row[measureStem])
+        changesDict[myID]["Nn-iPs"].append(row[measureNn]-row[measureStem])
     #if the gene code is not in the dictionary create the key/value pairs for EC and Nn
     else:
-        changesDict[row[identifier]] = {"EC-iPs": [row[measureEC]-row[measureStem]],
+        changesDict[myID] = {"EC-iPs": [row[measureEC]-row[measureStem]],
                    "Nn-iPs": [row[measureNn]-row[measureStem]],"biologicalProcessGO": [row[biologicalProcessGO]],
-                   "cellularComponentGO": [row[cellularComponentGO]],"molecularFunctionGO": [row[molecularFunctionGO]]}
+                   "cellularComponentGO": [row[cellularComponentGO]],"molecularFunctionGO": [row[molecularFunctionGO]],
+                   "alignment": [row[alignment]]}
 #store the max and min fold changes and calculate the mean value of gene expression
+counter = 0
 for key in changesDict:
+    counter +=1
     for condition in ["EC-iPs","Nn-iPs"]:
         values = changesDict[key][condition]
         changesDict[key]["minFold" + condition] = 2**min(values)
         changesDict[key]["maxFold"+condition] = 2**max(values)
         if not np.isnan(np.mean(values)):
             changesDict[key]["mean"+condition] = np.mean(values)   
+print(counter)
 #output the result from the file
 pickle.dump( changesDict, open( "temp\\changesDict.p", "wb" ) )

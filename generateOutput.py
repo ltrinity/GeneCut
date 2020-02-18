@@ -41,10 +41,12 @@ def outputData(includingByCategory, outFileName, geneOntologiesIncluded, APICall
                                      'mean(Nn-iPS)',
                                      'fcross FC (Nn)',
                                      'min fcross significance (Nn)', 
-                                     'max fcross significance (Nn)'])
+                                     'max fcross significance (Nn)',
+                                     'alignment'])
     #for each key from the input file
     for key in changesDict:
-        print(changesDict[key])
+        if key == 'nan':
+            break
         #python fold changes
         ECMaxfloatFoldChange = (changesDict[key]['maxFoldEC-iPs'])
         ECMinfloatFoldChange = (changesDict[key]['minFoldEC-iPs'])
@@ -99,8 +101,6 @@ def outputData(includingByCategory, outFileName, geneOntologiesIncluded, APICall
                                     include = True
                 #if we are including the gene
                 if include:
-                    #store the symbol, scatter the point
-                    gene = key
                     meanEC = changesDict[key]['meanEC-iPs']
                     meanNn = changesDict[key]['meanNn-iPs']
                     ax1.scatter(meanEC,meanNn,zorder=2)
@@ -125,11 +125,13 @@ def outputData(includingByCategory, outFileName, geneOntologiesIncluded, APICall
                                                      + str(np.round(ECMaxfloatFoldChange,3)) + ']'],
                                           'min fcross significance (EC)':[ECMinfcros],
                                           'max fcross significance (EC)':[ECMaxfcros],
-                                          'mean(Nn-iPS)':[meanNn[gene]],
+                                          'mean(Nn-iPS)':[meanNn],
                                           'fcross FC (Nn)': ['[' + str(np.round(NnMinfloatFoldChange,3)) + ', '
                                                      + str(np.round(NnMaxfloatFoldChange,3)) + ']'],
                                           'min fcross significance (Nn)':[NnMinfcros],
                                           'max fcross significance (Nn)':[NnMaxfcros],
+                                          'max fcross significance (Nn)':[NnMaxfcros],
+                                          'alignment': [changesDict[key]['alignment']]
                                           })
                     outputDF=outputDF.append(rowDF)
     #if we are subsetting output the figure
