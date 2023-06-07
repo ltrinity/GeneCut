@@ -1,4 +1,4 @@
-#GeneCut
+# GeneCut
 Gene expression analysis using Python and R Scripts
 Contact the author with any questions: ltrinity@uvm.edu
 
